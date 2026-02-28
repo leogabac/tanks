@@ -39,12 +39,16 @@ namespace CE6127.Tanks.AI
             public IdleState Idle;
             public PatrollingState Patrolling;
             public ChaseState Chase;
+            public EngageState Engage;
+            public StrafeEngageState StrafeEngage;
 
             internal States(TankSM sm)
             {
                 Idle = new IdleState(sm);
                 Patrolling = new PatrollingState(sm);
                 Chase = new ChaseState(sm);
+                Engage = new EngageState(sm);
+                StrafeEngage = new StrafeEngageState(sm);
             }
         }
 

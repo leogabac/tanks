@@ -43,20 +43,38 @@ namespace CE6127.Tanks.AI
             return;
         }
 
-        // Distance check (if target is too far, stop chasing)
+        var tankPos = m_TankSM.transform.position;
         var targetPos = m_TankSM.Target.position;
-        var dist = Vector3.Distance(m_TankSM.transform.position, targetPos);
 
-        if (dist > m_TankSM.TargetDistance)
+        // if the target becomes again too far, then go back to  patrolling
+        var distToTarget = Vector3.Distance(tankPos, targetPos);
+        if (distToTarget > m_TankSM.TargetDistance)
         {
             m_StateMachine.ChangeState(m_TankSM.m_States.Patrolling);
             return;
         }
 
-        // Smoothly rotate to face the target
-        var lookPos = targetPos - m_TankSM.transform.position;
-        lookPos.y = 0f;
+        // keep some distance from the player when chasing so that the tanks dont get too close and collide
+        // apparently the tanksm already had one variable for that
+        float stopDistance = m_TankSM.StopDistance;
+        float arriveTolerance = 0.5f; // small buffer so it doesn't jitter
 
+        // direction from target to tank (so the point is "in front of" the tank relative to target)
+        Vector3 dirFromTarget = tankPos - targetPos;
+        dirFromTarget.y = 0f;
+
+        // if we are exactly on top of the target (rare), pick a fallback direction
+        if (dirFromTarget.sqrMagnitude < 0.0001f)
+            dirFromTarget = -m_TankSM.transform.forward;
+
+        dirFromTarget.Normalize();
+
+        // destination is an offset point stopDistance away from the target
+        Vector3 destination = targetPos + dirFromTarget * stopDistance;
+
+        // smoothly rotate to face the target
+        var lookPos = targetPos - tankPos;
+        lookPos.y = 0f;
         if (lookPos.sqrMagnitude > 0.001f)
         {
             var rot = Quaternion.LookRotation(lookPos);
@@ -67,22 +85,30 @@ namespace CE6127.Tanks.AI
             );
         }
 
-        // CHASE destination: go to the target
-        var m_Destination = targetPos;
-
-        // Update navmesh destination at a fixed rate (prevents jitter + saves CPU)
+        // update navmesh destination at a fixed rate
         if (Time.time >= m_TankSM.NavMeshUpdateDeadline)
         {
             m_TankSM.NavMeshUpdateDeadline = Time.time + m_TankSM.PatrolNavMeshUpdate;
 
             if (m_TankSM.NavMeshAgent != null && m_TankSM.NavMeshAgent.isOnNavMesh)
             {
-                m_TankSM.NavMeshAgent.SetDestination(m_Destination);
+                m_TankSM.NavMeshAgent.stoppingDistance = stopDistance;
+
+                m_TankSM.NavMeshAgent.SetDestination(destination);
             }
         }
-        
-        // then here would be cool to update to go into firing and engaging mode
-        // the basic idea would be to change between firing and chasing mode
+
+        // change to engage mode if we are within the stop distance (and tolerance)
+        if (distToTarget <= stopDistance + arriveTolerance)
+        {
+            if (m_TankSM.NavMeshAgent != null && m_TankSM.NavMeshAgent.isOnNavMesh)
+            {
+                m_TankSM.NavMeshAgent.ResetPath();
+            }
+
+            m_StateMachine.ChangeState(m_TankSM.m_States.StrafeEngage);
+            return;
+        }
     }
 }
 }
