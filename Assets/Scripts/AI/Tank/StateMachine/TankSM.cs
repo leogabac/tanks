@@ -55,8 +55,12 @@ namespace CE6127.Tanks.AI
         }
 
         public States m_States;
+        // this is a variable i added to change to "strafe engage" permanetly after x amount of time of the match has passed
+        [HideInInspector] public bool UseStrafeEngagePermanently = false;
+
         [HideInInspector] public GameManager GameManager;           // Reference to the GameManager.
         [HideInInspector] public NavMeshAgent NavMeshAgent;         // Reference to the NavMeshAgent.
+
         [Header("Patrolling")]
         [Tooltip("Minimum and maximum time delay for patrolling wait.")]
         public Vector2 PatrolWaitTime = new(1.5f, 3.5f);            // A minimum and maximum time delay for patrolling wait.

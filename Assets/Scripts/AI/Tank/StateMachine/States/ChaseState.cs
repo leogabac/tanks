@@ -10,6 +10,8 @@ namespace CE6127.Tanks.AI
     internal class ChaseState : BaseState
     {
         private TankSM m_TankSM; // Reference to the tank state machine.
+        private float m_lateGameTime;
+
 
         /// <summary>
         /// Constructor <c>IdleState</c> is the constructor of the class.
@@ -22,6 +24,8 @@ namespace CE6127.Tanks.AI
         public override void Enter()
         {
             base.Enter();
+            m_lateGameTime = 0.5f*(60*m_TankSM.GameManager.MinutesPerRound);
+
             // in case i want to add coroutines, this is how to do it
             // m_TankSM.SetStopDistanceToZero();
             // m_TankSM.StartCoroutine(Patrolling());
@@ -36,7 +40,8 @@ namespace CE6127.Tanks.AI
     {
         base.Update();
 
-        Debug.Log("Chase");
+        // Debug.Log("Chase");
+        
 
 
         // If we have no target, go back to patrolling (or just return)
@@ -108,8 +113,14 @@ namespace CE6127.Tanks.AI
             {
                 m_TankSM.NavMeshAgent.ResetPath();
             }
+            
+            // if enough time has passed, go into strafe engage mode where the tanks are very aggresive
+            // if not, just go to the regular engage mode
+            if (m_TankSM.UseStrafeEngagePermanently || m_TankSM.GameManager.m_RoundTimeLeft <= m_lateGameTime)
+                m_StateMachine.ChangeState(m_TankSM.m_States.StrafeEngage);
+            else
+                m_StateMachine.ChangeState(m_TankSM.m_States.Engage);
 
-            m_StateMachine.ChangeState(m_TankSM.m_States.Engage);
             return;
         }
     }

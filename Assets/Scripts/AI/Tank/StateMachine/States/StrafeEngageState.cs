@@ -70,6 +70,8 @@ namespace CE6127.Tanks.AI
                 m_StateMachine.ChangeState(m_TankSM.m_States.Patrolling);
                 return;
             }
+            
+            // Debug.Log("Strafe Engage");
 
             var tankPos = m_TankSM.transform.position;
             var targetPos = m_TankSM.Target.position;
@@ -205,7 +207,7 @@ namespace CE6127.Tanks.AI
                 if (m_TankSM.NavMeshAgent.remainingDistance <= stop)
                 {
                     m_HasDestination = false;
-                    // Let it keep its path cleared so next reposition is clean
+                    // let it keep its path cleared so next reposition is clean
                     m_TankSM.NavMeshAgent.ResetPath();
                 }
             }

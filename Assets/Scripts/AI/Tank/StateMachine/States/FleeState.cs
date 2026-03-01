@@ -54,7 +54,7 @@ namespace CE6127.Tanks.AI
         {
             base.Update();
 
-            Debug.Log("Flee");
+            // Debug.Log("Flee");
 
             if (Time.time >= m_FleeEndTime)
             {

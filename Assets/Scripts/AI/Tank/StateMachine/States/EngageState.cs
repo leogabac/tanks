@@ -15,13 +15,20 @@ namespace CE6127.Tanks.AI
         private int m_ShotsSinceFlee;
         private int m_ShotsBeforeFlee;
 
+        // variables to help me switch into strafe engage, i.e. hard mode
+        private float m_EnterTime;
+        private float m_SwitchTime;
+        private bool m_HasSwitched;
+        private float m_lateGameTime;
+
         public EngageState(TankSM tankStateMachine) : base("Engage", tankStateMachine)
             => m_TankSM = (TankSM)m_StateMachine;
 
         public override void Enter()
         {
             base.Enter();
-
+            
+            m_lateGameTime = 0.5f*(60*m_TankSM.GameManager.MinutesPerRound);
             m_ShotsSinceFlee = 0;
             m_ShotsBeforeFlee = Random.Range(2, 5); // flee after 2–4 shots
 
@@ -35,19 +42,27 @@ namespace CE6127.Tanks.AI
             // shot scheduling: chooses some random interval and adds it to a timer
             m_CurrentInterval = Random.Range(m_TankSM.FireInterval.x, m_TankSM.FireInterval.y);
             m_NextFireTime = Time.time + m_CurrentInterval;
+
         }
 
         public override void Update()
         {
             base.Update();
 
-            Debug.Log("Engage");
-            
+            // Debug.Log("Engage");
 
             // fallback to patrolling if target is missing
             if (m_TankSM.Target == null)
             {
                 m_StateMachine.ChangeState(m_TankSM.m_States.Patrolling);
+                return;
+            }
+
+            // after the lateGame timer has been, use StrafeEngage
+            if (m_TankSM.GameManager.m_RoundTimeLeft <= m_lateGameTime)
+            {
+                m_TankSM.UseStrafeEngagePermanently = true;
+                m_StateMachine.ChangeState(m_TankSM.m_States.StrafeEngage);
                 return;
             }
 

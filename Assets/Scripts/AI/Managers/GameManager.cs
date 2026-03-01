@@ -97,7 +97,10 @@ namespace CE6127.Tanks.AI
         private WaitForSeconds m_RoundStartWaitSec;         // Used to have a delay whilst the round starts.
         private PlatoonManager m_RoundWinner;               // Reference to the winner of the current round.  Used to make an announcement of who won.
         private PlatoonManager m_GameWinner;                // Reference to the winner of the game. Used to make an announcement of who won.
-        private float m_RoundTimeLeft;                      // The current time left in the round.
+                                                            //
+        // made this a public variable to be able to access it from the state machine
+        public float m_RoundTimeLeft;                      // The current time left in the round.
+
         private bool m_RoundStarted;                        // Whether the round has started.
         private float m_CriticalMin;                        // The minutes at which the timer becomes critical.
         private float m_CriticalSec;                        // The seconds at which the timer becomes critical.
