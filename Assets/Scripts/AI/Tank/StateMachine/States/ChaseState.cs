@@ -106,7 +106,7 @@ namespace CE6127.Tanks.AI
                 m_TankSM.NavMeshAgent.ResetPath();
             }
 
-            m_StateMachine.ChangeState(m_TankSM.m_States.StrafeEngage);
+            m_StateMachine.ChangeState(m_TankSM.m_States.Engage);
             return;
         }
     }

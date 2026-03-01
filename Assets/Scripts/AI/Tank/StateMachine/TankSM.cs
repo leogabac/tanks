@@ -41,6 +41,7 @@ namespace CE6127.Tanks.AI
             public ChaseState Chase;
             public EngageState Engage;
             public StrafeEngageState StrafeEngage;
+            public FleeState Flee;
 
             internal States(TankSM sm)
             {
@@ -49,6 +50,7 @@ namespace CE6127.Tanks.AI
                 Chase = new ChaseState(sm);
                 Engage = new EngageState(sm);
                 StrafeEngage = new StrafeEngageState(sm);
+                Flee = new FleeState(sm);
             }
         }
 

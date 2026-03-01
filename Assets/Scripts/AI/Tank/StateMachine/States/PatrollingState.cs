@@ -42,7 +42,7 @@ namespace CE6127.Tanks.AI
                 var dist = Vector3.Distance(m_TankSM.transform.position, m_TankSM.Target.position);
                 if (dist <= m_TankSM.StopDistance){
                     // TODO: Here it would be better to implement a "Combat" state where if we are close to the target, then the AI Tank will engage and fire
-                    m_StateMachine.ChangeState(m_TankSM.m_States.Idle);
+                    m_StateMachine.ChangeState(m_TankSM.m_States.Engage);
                 }
                 else if (dist <= m_TankSM.TargetDistance){
                     m_StateMachine.ChangeState(m_TankSM.m_States.Chase);
