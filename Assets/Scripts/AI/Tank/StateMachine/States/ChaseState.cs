@@ -36,6 +36,9 @@ namespace CE6127.Tanks.AI
     {
         base.Update();
 
+        Debug.Log("Chase");
+
+
         // If we have no target, go back to patrolling (or just return)
         if (m_TankSM.Target == null)
         {

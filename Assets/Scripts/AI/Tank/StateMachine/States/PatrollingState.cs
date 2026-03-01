@@ -37,6 +37,7 @@ namespace CE6127.Tanks.AI
         public override void Update()
         {
             base.Update();
+            Debug.Log("Patrolling");
             if (m_TankSM.Target != null)
             {
                 var dist = Vector3.Distance(m_TankSM.transform.position, m_TankSM.Target.position);

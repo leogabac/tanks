@@ -12,6 +12,8 @@ namespace CE6127.Tanks.AI
 
         private float m_NextFireTime;
         private float m_CurrentInterval;
+        private int m_ShotsSinceFlee;
+        private int m_ShotsBeforeFlee;
 
         public EngageState(TankSM tankStateMachine) : base("Engage", tankStateMachine)
             => m_TankSM = (TankSM)m_StateMachine;
@@ -19,6 +21,9 @@ namespace CE6127.Tanks.AI
         public override void Enter()
         {
             base.Enter();
+
+            m_ShotsSinceFlee = 0;
+            m_ShotsBeforeFlee = Random.Range(2, 5); // flee after 2–4 shots
 
             // don't move while engaging
             if (m_TankSM.NavMeshAgent != null && m_TankSM.NavMeshAgent.isOnNavMesh)
@@ -35,6 +40,9 @@ namespace CE6127.Tanks.AI
         public override void Update()
         {
             base.Update();
+
+            Debug.Log("Engage");
+            
 
             // fallback to patrolling if target is missing
             if (m_TankSM.Target == null)
@@ -83,6 +91,13 @@ namespace CE6127.Tanks.AI
                 // re-schedule the shot
                 m_CurrentInterval = Random.Range(m_TankSM.FireInterval.x, m_TankSM.FireInterval.y);
                 m_NextFireTime = Time.time + m_CurrentInterval;
+
+                m_ShotsSinceFlee++;
+                if (m_ShotsSinceFlee >= m_ShotsBeforeFlee)
+                {
+                    m_StateMachine.ChangeState(m_TankSM.m_States.Flee);
+                    return;
+                }
             }
         }
 

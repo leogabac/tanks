@@ -26,6 +26,10 @@ namespace CE6127.Tanks.AI
         private const float NavmeshSampleRadius = 6f;  // how far we allow snapping to navmesh
         private const float FaceAwaySlerp = 0.25f;     // separate from OrientSlerpScalar; tweak if needed
 
+        private float m_FleeEndTime;
+        private const float FleeDurationMin = 1.5f;
+        private const float FleeDurationMax = 3.0f;
+
         public FleeState(TankSM tankStateMachine) : base("Flee", tankStateMachine)
             => m_TankSM = (TankSM)m_StateMachine;
 
@@ -42,11 +46,24 @@ namespace CE6127.Tanks.AI
 
             // Start coroutine that periodically picks a new destination away from target.
             m_FleeCoroutine = m_TankSM.StartCoroutine(Fleeing());
+
+            m_FleeEndTime = Time.time + Random.Range(FleeDurationMin, FleeDurationMax);
         }
 
         public override void Update()
         {
             base.Update();
+
+            Debug.Log("Flee");
+
+            if (Time.time >= m_FleeEndTime)
+            {
+                // Pick where you want to go after fleeing:
+                // - Chase: if you want it to re-engage
+                // - Patrolling: if you want it to disappear / reset
+                m_StateMachine.ChangeState(m_TankSM.m_States.Chase);
+                return;
+            }
 
             // If no target, we can't flee "from" anything; do nothing here.
             // (You can later transition to Patrolling/Idle when integrating.)
@@ -57,9 +74,18 @@ namespace CE6127.Tanks.AI
             // Remove this block if you prefer to keep facing the target.
             Vector3 tankPos = m_TankSM.transform.position;
             Vector3 targetPos = m_TankSM.Target.position;
+            var distToTarget = Vector3.Distance(tankPos, targetPos);
 
             Vector3 away = (tankPos - targetPos);
             away.y = 0f;
+
+
+            if (distToTarget > m_TankSM.TargetDistance)
+            {
+                m_StateMachine.ChangeState(m_TankSM.m_States.Patrolling);
+                return;
+            }
+
 
             if (away.sqrMagnitude > 0.001f)
             {
@@ -104,12 +130,8 @@ namespace CE6127.Tanks.AI
 
             while (true)
             {
-                if (distToTarget > m_TankSM.TargetDistance)
-                {
-                    m_StateMachine.ChangeState(m_TankSM.m_States.Patrolling);
-                    return;
-                }
-                
+
+               
                 if (m_TankSM.Target != null && m_TankSM.NavMeshAgent != null && m_TankSM.NavMeshAgent.isOnNavMesh)
                 {
                     Vector3 tankPos = m_TankSM.transform.position;
